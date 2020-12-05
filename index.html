@@ -1,0 +1,204 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>hello, world. meet scarlet.</title>
+<link href="scarlet.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<div id="titlebar">
+<img src="scarletlambda_title.png" alt="scarlet lambda (a web framework for heretics)" width="594" height="91" />
+</div>
+<div id="content">
+
+<h1>hello, world. meet scarlet.</h1>
+
+<code id="hello" class="block">
+(<span class="key">def</span> <span class="def">main</span> () 
+    ^<span class="str">"Hell yeah."</span>)
+
+</code>
+
+<p><strong>Status, as of January 12 2007:</strong></p> 
+<div id="status">
+<p><strong>Much of what is described here is working today.</strong> However, it is in pieces, and
+some parts are not implemented at all. Expect a public beta
+by April 2007, with early-adopter downloads and source code control
+coming much sooner.</p>
+
+<p>This project is not a toy, but intended for serious use in the real world. I run a 
+business, and I use this codebase extensively in my work, so it's important to me that this 
+project moves efficiently and the code be <strong>well tested</strong> 
+and <strong>stable</strong>.</p>
+
+<p>Eventually, <strong>I want to hire developers</strong> to help me work on the code.
+So it's <em>also</em> important to me that the code be well <strong>designed</strong> and well 
+<strong>documented</strong>.</p>
+
+<p>I hope you enjoy this sneak preview as I bring the code up to these standards.</p>
+
+<p>Thanks,</p>
+
+<cite>Michal J Wallace<br /><a href="http://cornerhost.com/">cornerhost.com</a></cite>
+</div>
+
+
+<h2>the framework: scarlet lambda</h2>
+
+<p>In ancient times, functional python programmers were shunned,
+and forced to wear the scarlet lambda as a symbol of their heresy...</p>
+
+<p>Well okay, not really, but that's what I'm calling this thing:
+<a href="http://scarletlambda.org/">scarlet lambda</a>, or 
+<strong>scarlet for short</strong>.</p>
+
+<p>Scarlet is a very lightweight framework built on top of <a href="http://www.python.org/dev/peps/pep-0333/">wsgi</a>:</p>
+
+<ul>
+<li><strong>based on generators</strong>: 
+    In wsgi, your handlers yield strings. Scarlet adds to this by letting
+	you <strong>yield strings or <em>generators</em></strong>. This allows for a
+	cleaner style, better testability, and also for lightweight asynchronous concurrency via
+	<a href="http://www-128.ibm.com/developerworks/library/l-pythrd.html">microthreads</a>.
+</li>
+<li><strong>declarative dispatch</strong>: applications are defined as a <strong>tree of named callables</strong>.
+Paths in the URL map to positions in the tree. These callables can <strong>dispatch on the HTTP method</strong>
+(get/post/put/etc).</li>
+<li><strong>declarative redirects</strong>: </li>
+<li><strong>platonic components</strong>: generally, your handlers don't know or care that 
+they are on the web. These handlers must either:
+<ul>
+<li>yield strings and generators</li>
+<li>return None</li>
+<li>throw an exception</li>
+</ul>
+<li><strong>parameter mapping</strong>: the dispatch system inspects the handler's signature
+and sends the correct data. Special parameters, such as, session objects, database/ORM connections,
+and wsgi's <code>start_response</code> and <code>environ</code> can be explicitly requested.</li>
+<li><strong>strongbox</strong>: smart classes with runtime type checking and lazy loaded associations</li>
+<li><strong>automatic REST</strong>: given a root strongbox, can be automatically generated.</li>
+</ul>
+
+And of course...
+
+<h2>ecdysis: a lisp-like syntax for python</h2>
+
+<p>First rule of ecdysis: <strong>Stop whining. You don't have to use it.</strong></p>
+
+<p>Anything you can do in scarlet, you can do in plain python syntax.
+Think of ecdysis as a <strong>template system strong enough to write
+code in</strong>.
+
+<p>Features:</p>
+
+<ul>
+<li><strong>looks like lisp</strong>: everything is an expression. Parentheses abound.</li>
+<li><strong>compiles to python</strong>: ecdysis and python can call each other freely.</li>
+<li><strong>embedded XML</strong>: xml tags are valid syntax. (Thanks, <a href="http://scala.epfl.ch/intro/xml.html">scala</a>!)
+They define generators that yield tag objects (a type of string).</li>
+<li><strong>mix and match</strong>: arbitrarily nested XML tags and s-expressions
+mean you get cool things like:</li>
+<ul>
+<li><strong>Powerful Templates</strong> : like a well formed PHP</li>
+<li><strong>Literate programming</strong> : write your code with links,
+headlines, bullet points, and everything else you get with XHTML.</li>
+</ul>
+<li><strong>cons cells</strong>: simple head/tail pairs taken from lisp.
+They play nice with recursion. (Gives you <code>series[1:]</code> without making a copy.)</li>
+<li><strong>macros</strong>: yay, <a href="http://www.apl.jhu.edu/~hall/Lisp-Notes/Macros.html">macros</a>.</li>
+<li><strong>infix expressions</strong>: plain old python expressions when you want them: 
+<code class="block">
+<span class="rem"># prefix:</span>
+(+ 1 (<span class="key">int</span> <span class="str">"5"</span>) b)
+<span class="rem"># infix:</span>
+(: 1 + <span class="key">int</span>(<span class="str">"5"</span>) + b)
+
+</code></li>
+<li>Trailing <strong>question marks</strong>: I like these for booleans/predicates. (<code>nice?</code> maps to python <code>nice_p</code>)</li>
+<li>Trailing <strong>exclamation points</strong>: I like these for imperatives. (<code>kill!</code> maps to python <code>kill_i</code>)</li>
+<li><strong>group by verb</strong>: sometimes it's nicer to add methods from outside the class:
+<code class="block">
+(<span class="key">def</span> <span class="def">MyClass.meth</span> (<span class="key">self</span> etc) etc)
+
+</code></li>
+<li><strong>group by noun</strong>: you can still do it the old way though: 
+<code class="block">
+(<span class="key">class</span> <span class="def">MyClass</span> (object) { 
+    <span class="def">meth</span> : (<span class="key">def</span> (<span class="key">self</span> etc) etc)})
+
+</code></li>
+<li><strong>Alternatives to assignment</strong>: Functional programs discourage assigning variables.
+Ecdysis introduces <code>const</code> and <code>let</code> forms to help avoid the equal sign (you
+can still do normal assignment though).</li>
+<li><strong>symbols</strong>: you can refer to arbitrary identifiers. You don't have to declare
+or assign anything if you just need a unique identifier for a concept.</li>
+<li><strong>the do keyword</strong>: for when you need an imperative block.</li>
+<li><strong>private prefix</strong>: <code>@at_signs</code> make for private variables. Also used for 
+<code>@init</code>, <code>@iter</code>, etc. These map to the usual python <code>__equivalents__</code></li>
+<li><strong>explicit main</strong>: say goodbye to <code>if __name__=="__main__":</code></li>
+</ul>
+
+<h2>examples</h2>
+
+<code class="block">
+<span class="rem"># return a string. (from main, this means "print")</span>
+(<span class="key">def</span> <span class="def">main</span> ()
+    <span class="str">"hello world"</span>)
+
+<span class="rem"># yield a string. (same effect)</span>
+(<span class="key">def</span> <span class="def">main</span> ()
+    ^<span class="str">"hello world"</span>)
+
+<span class="rem"># input comes from browser or command line
+</span>(<span class="key">def</span> <span class="def">main</span> (name=<span class="str">"world"</span> [args] {kw})
+    ^<span class="str">"hello $name"</span> 
+    ^<span class="str">"welcome to ecdysis."</span>)
+
+</code>
+
+<p>XML style:</p>
+
+<code class="block">
+<span class="xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;?</span><span class="key">def</span> <span class="def">main</span> (name=<span class="str">&quot;world&quot;</span> [uri_path] {query}) <span class="xml">?&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;Hello </span>$(name)<span class="xml">&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Hello </span>$(name)<span class="xml">&lt;/h1&gt;
+    &lt;p&gt;Welcome to ecdysis.&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</span>
+
+</code>
+
+<h2>future directions</h2>
+
+<p>I'm trying to stick to features I personally need
+for the initial release, and not just to do things just 
+because they're cool. But some ideas are worth keeping,
+so here's the <strong>someday/maybe list</strong>:</p>
+
+<ul>
+<li>proper tail calls</li>
+<li>type annotations</li>
+<li>port the whole haskell prelude</li>
+<li>erlang style processes with candygram</li>
+<li>parrot like virtual machine (since we already have pirate)</li>
+<li>first order continuations</li>
+<li>morphic interface based on wxOGL and sping</li>
+<li>formalize <code>do</code> and <code>return</code> around monads</li>
+</ul>
+
+<h2>stay tuned</h2>
+
+<p>If you would like to get involved in this project, please subscribe
+
+to my blog: <a href="http://withoutane.com">withoutane.com</a></p>
+
+</div>
+
+</body>
+</html>
